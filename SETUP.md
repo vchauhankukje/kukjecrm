@@ -67,13 +67,40 @@ Press `Ctrl+C` in the terminal to stop it when done.
 
 ## 8. Making changes live (deploying)
 
-Once the Vercel project is linked to GitHub (a one-time setup, see project notes), any change you push to GitHub automatically updates the live site at https://kukjecrmapp.vercel.app — no manual deploy step needed:
+Vercel is connected directly to this GitHub repo, so any change that reaches the `main` branch automatically updates the live site at https://kukjecrmapp.vercel.app — no manual deploy step needed.
 
-```bash
-git add -A
-git commit -m "describe what you changed"
-git push
-```
+**Important: you cannot push directly to `main`.** It's protected — every change must go through a branch and a Pull Request. This keeps the real (paid, live) app safe from untested changes, especially once more than one person is working on this project.
 
-That's it — Vercel picks up the push and redeploys automatically within a minute or two.
+## 9. The branch → preview → merge workflow
+
+Use this every time you make a change, whether it's you or another developer:
+
+1. **Create a branch** for your change (pick a short, descriptive name):
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b your-name/short-description
+   ```
+   Example: `git checkout -b vivek/fix-signup-bug`
+
+2. **Make your changes**, then commit and push the branch:
+   ```bash
+   git add -A
+   git commit -m "describe what you changed"
+   git push -u origin your-name/short-description
+   ```
+
+3. **Vercel automatically builds a Preview link** for that branch (separate from the live app — completely safe to test on). Find it either in the terminal output from Vercel, or on GitHub: open the branch's Pull Request page (see next step) and look for the "Vercel" bot comment with the preview URL.
+
+4. **Open a Pull Request**: after pushing, GitHub prints a link in the terminal like `https://github.com/vchauhankukje/kukjecrm/pull/new/your-branch-name` — open it, click **Create pull request**.
+
+5. **Test on the Preview link.** If something's wrong, keep pushing more commits to the same branch — the Preview link updates automatically each time.
+
+6. **Merge when ready**: on the Pull Request page, click **Merge pull request** → **Confirm merge**. This is what actually updates the live site — Vercel redeploys `main` automatically within about a minute.
+
+7. **Clean up** (optional but tidy): delete the branch after merging — GitHub offers a "Delete branch" button right after you merge.
+
+### If two people are working at once
+
+Each person should work on their **own branch**, never share one. If two branches touch the same lines of the same file, Git will flag a "merge conflict" when the second one tries to merge — this just means someone needs to look at both versions and manually decide what the final result should be. It's normal, not a sign anything is broken.
 
