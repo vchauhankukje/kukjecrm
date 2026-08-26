@@ -76,3 +76,5 @@ git push
 ```
 
 That's it — Vercel picks up the push and redeploys automatically within a minute or two.
+
+<!-- direct-to-main test, should be rejected -->
