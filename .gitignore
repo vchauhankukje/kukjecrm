@@ -26,3 +26,4 @@ dist-ssr
 *.sw?
 
 .vercel
+.claude/scheduled_tasks.lock
