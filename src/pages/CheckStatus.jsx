@@ -32,13 +32,12 @@ export default function CheckStatus() {
 
   useEffect(() => {
     async function loadFromExistingSession() {
-      if (searchParams.get('welcome') !== '1') return
       const candidateId = localStorage.getItem('candidateId')
       if (!candidateId) return
       setLoading(true)
       const { data: found } = await supabase.from('candidate').select('*').eq('id', candidateId).maybeSingle()
       if (found) {
-        setShowWelcomeBanner(true)
+        if (searchParams.get('welcome') === '1') setShowWelcomeBanner(true)
         await loadCandidateAndApplications(found)
       }
       setLoading(false)

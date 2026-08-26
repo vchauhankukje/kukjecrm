@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-import { Container, PageHeader, Card, Button, Select, Input, ErrorText, BackLink } from '../components/ui'
+import { Container, PageHeader, Card, Button, Select, Input, ErrorText } from '../components/ui'
 
 const PAGE_SIZE = 10
 
@@ -65,9 +65,11 @@ export default function JobFeed() {
     <Container>
       <PageHeader title="Jobs for you" subtitle={`${filtered.length} open roles matched to your categories`} />
 
-      <div className="mb-4 flex items-center justify-center gap-4">
-        <BackLink onClick={() => navigate('/availability')} label="Edit availability" />
-        <a href="/status" className="text-sm font-semibold text-[var(--color-primary)]">My status</a>
+      <div className="mb-4 flex items-center justify-center gap-4 text-sm font-semibold">
+        <button onClick={() => navigate('/availability')} className="text-[var(--color-muted)] hover:text-[var(--color-primary)]">
+          ← Edit availability
+        </button>
+        <a href="/status" className="text-[var(--color-primary)]">My status</a>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">

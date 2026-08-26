@@ -15,6 +15,7 @@ import JobList from './pages/admin/JobList'
 import JobForm from './pages/admin/JobForm'
 import PartnerList from './pages/admin/PartnerList'
 import PartnerInvite from './pages/admin/PartnerInvite'
+import PartnerDetail from './pages/admin/PartnerDetail'
 import Pipeline from './pages/admin/Pipeline'
 import LocationManager from './pages/admin/LocationManager'
 import PartnerOnboard from './pages/partner/PartnerOnboard'
@@ -66,6 +67,7 @@ function App() {
             <Route path="/admin/jobs/:id/edit" element={<JobForm />} />
             <Route path="/admin/partners" element={<PartnerList />} />
             <Route path="/admin/partners/invite" element={<PartnerInvite />} />
+            <Route path="/admin/partners/:id" element={<PartnerDetail />} />
           </Route>
         </Routes>
       </div>

@@ -13,6 +13,7 @@ export default function PartnerInvite() {
   const [businessName, setBusinessName] = useState('')
   const [ownerName, setOwnerName] = useState('')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [city, setCity] = useState('')
   const [payoutMethod, setPayoutMethod] = useState('')
   const [error, setError] = useState('')
@@ -33,6 +34,7 @@ export default function PartnerInvite() {
       business_name: businessName,
       owner_name: ownerName,
       phone,
+      invited_email: email || null,
       city,
       payout_method: payoutMethod,
       referral_code: referralCode,
@@ -54,7 +56,7 @@ export default function PartnerInvite() {
           <p className="mb-2 text-sm font-semibold text-[var(--color-ink)]">{businessName}</p>
           <p className="break-all rounded-lg bg-[var(--color-surface-muted)] p-3 font-mono text-sm text-[var(--color-primary)]">{inviteLink}</p>
           <p className="mt-3 text-xs text-[var(--color-muted)]">
-            Copy this and send it to them yourself (WhatsApp, email, etc.) — nothing is sent automatically.
+            Copy this and send it to their phone (WhatsApp/SMS) or email — it's the same link either way, nothing is sent automatically.
           </p>
         </Card>
       </Container>
@@ -74,6 +76,9 @@ export default function PartnerInvite() {
           </Field>
           <Field label="Phone">
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </Field>
+          <Field label="Email" hint="Optional — pre-fills their onboarding form">
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
           <Field label="City">
             <Input value={city} onChange={(e) => setCity(e.target.value)} />
