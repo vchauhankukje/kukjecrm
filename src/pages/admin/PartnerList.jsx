@@ -42,7 +42,9 @@ export default function PartnerList() {
             <tbody>
               {partners.map((p) => (
                 <tr key={p.id} className="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-surface-muted)]">
-                  <td className="px-4 py-3 font-medium text-[var(--color-ink)]">{p.business_name}</td>
+                  <td className="px-4 py-3">
+                    <Link to={`/admin/partners/${p.id}`} className="font-semibold text-[var(--color-primary)]">{p.business_name}</Link>
+                  </td>
                   <td className="px-4 py-3 text-[var(--color-body)]">{p.owner_name}</td>
                   <td className="px-4 py-3 text-[var(--color-body)]">{p.city}</td>
                   <td className="px-4 py-3 font-mono text-[var(--color-primary)]">{p.referral_code}</td>

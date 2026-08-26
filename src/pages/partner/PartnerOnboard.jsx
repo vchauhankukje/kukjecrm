@@ -22,6 +22,7 @@ export default function PartnerOnboard() {
       }
       const { data } = await supabase.from('partner').select('*').eq('invite_token', token).is('auth_user_id', null).maybeSingle()
       setPartner(data)
+      if (data?.invited_email) setEmail(data.invited_email)
       setChecking(false)
     }
     check()
