@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-import { Container, PageHeader, Card, Button, Select, Input, ErrorText, BackLink } from '../components/ui'
+import { Container, PageHeader, Card, Button, Select, Input, ErrorText } from '../components/ui'
 
 const PAGE_SIZE = 10
 
