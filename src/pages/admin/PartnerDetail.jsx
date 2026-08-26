@@ -17,6 +17,23 @@ export default function PartnerDetail() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
+
+  function generateToken() {
+    return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)
+  }
+
+  async function regenerateInviteLink() {
+    setRegenerating(true)
+    const inviteToken = generateToken()
+    const { error: dbError } = await supabase.from('partner').update({ invite_token: inviteToken }).eq('id', id)
+    setRegenerating(false)
+    if (dbError) {
+      setError(dbError.message)
+      return
+    }
+    load()
+  }
 
   async function load() {
     const { data } = await supabase.from('partner').select('*').eq('id', id).single()
@@ -65,10 +82,32 @@ export default function PartnerDetail() {
     <Container>
       <PageHeader title={partner.business_name} subtitle={`Referral code: ${partner.referral_code}`} />
 
-      <Card className="mb-4 flex items-center justify-between">
-        <span className="text-sm text-[var(--color-muted)]">Onboarding status</span>
-        {partner.auth_user_id ? <Pill status="placed" /> : <Pill status="applied" />}
-        <span className="text-sm font-medium text-[var(--color-ink)]">{partner.auth_user_id ? 'Active' : 'Invited (not yet activated)'}</span>
+      <Card className="mb-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-[var(--color-muted)]">Onboarding status</span>
+          <div className="flex items-center gap-2">
+            {partner.auth_user_id ? <Pill status="placed" /> : <Pill status="applied" />}
+            <span className="text-sm font-medium text-[var(--color-ink)]">{partner.auth_user_id ? 'Active' : 'Invited (not yet activated)'}</span>
+          </div>
+        </div>
+
+        {!partner.auth_user_id && (
+          <div className="mt-3 border-t border-[var(--color-border)] pt-3">
+            {partner.invite_token ? (
+              <>
+                <p className="mb-2 text-xs text-[var(--color-muted)]">Invite link (send to their phone or email):</p>
+                <p className="break-all rounded-lg bg-[var(--color-surface-muted)] p-3 font-mono text-sm text-[var(--color-primary)]">
+                  {window.location.origin}/partner/onboard?token={partner.invite_token}
+                </p>
+              </>
+            ) : (
+              <p className="mb-2 text-sm text-[var(--color-muted)]">No active invite link.</p>
+            )}
+            <Button variant="secondary" onClick={regenerateInviteLink} disabled={regenerating} className="mt-2">
+              {regenerating ? 'Generating...' : partner.invite_token ? 'Regenerate link (invalidates the old one)' : 'Generate invite link'}
+            </Button>
+          </div>
+        )}
       </Card>
 
       <Card>
