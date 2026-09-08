@@ -18,10 +18,23 @@ import PartnerInvite from './pages/admin/PartnerInvite'
 import PartnerDetail from './pages/admin/PartnerDetail'
 import Pipeline from './pages/admin/Pipeline'
 import LocationManager from './pages/admin/LocationManager'
+import AccessControl from './pages/admin/AccessControl'
+import RecruiterOnboard from './pages/admin/RecruiterOnboard'
+import AuditLog from './pages/admin/AuditLog'
+import ClientList from './pages/admin/ClientList'
+import ClientInvite from './pages/admin/ClientInvite'
+import ClientDetail from './pages/admin/ClientDetail'
+import LeadList from './pages/admin/LeadList'
+import LeadForm from './pages/admin/LeadForm'
+import LeadDetail from './pages/admin/LeadDetail'
 import PartnerOnboard from './pages/partner/PartnerOnboard'
 import PartnerLogin from './pages/partner/PartnerLogin'
 import PartnerGuard from './pages/partner/PartnerGuard'
 import PartnerDashboard from './pages/partner/PartnerDashboard'
+import ClientOnboard from './pages/client/ClientOnboard'
+import ClientLogin from './pages/client/ClientLogin'
+import ClientGuard from './pages/client/ClientGuard'
+import ClientDashboard from './pages/client/ClientDashboard'
 
 function BrandHeader() {
   const location = useLocation()
@@ -55,12 +68,22 @@ function App() {
             <Route path="/partner/dashboard" element={<PartnerDashboard />} />
           </Route>
 
+          {/* Client-facing */}
+          <Route path="/client/onboard" element={<ClientOnboard />} />
+          <Route path="/client/login" element={<ClientLogin />} />
+          <Route element={<ClientGuard />}>
+            <Route path="/client/dashboard" element={<ClientDashboard />} />
+          </Route>
+
           {/* Admin/CRM */}
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/onboard" element={<RecruiterOnboard />} />
           <Route element={<AdminGuard />}>
             <Route path="/admin" element={<CandidateList />} />
             <Route path="/admin/pipeline" element={<Pipeline />} />
             <Route path="/admin/locations" element={<LocationManager />} />
+            <Route path="/admin/access-control" element={<AccessControl />} />
+            <Route path="/admin/audit-log" element={<AuditLog />} />
             <Route path="/admin/candidates/:id" element={<CandidateDetail />} />
             <Route path="/admin/jobs" element={<JobList />} />
             <Route path="/admin/jobs/new" element={<JobForm />} />
@@ -68,6 +91,12 @@ function App() {
             <Route path="/admin/partners" element={<PartnerList />} />
             <Route path="/admin/partners/invite" element={<PartnerInvite />} />
             <Route path="/admin/partners/:id" element={<PartnerDetail />} />
+            <Route path="/admin/clients" element={<ClientList />} />
+            <Route path="/admin/clients/invite" element={<ClientInvite />} />
+            <Route path="/admin/clients/:id" element={<ClientDetail />} />
+            <Route path="/admin/leads" element={<LeadList />} />
+            <Route path="/admin/leads/new" element={<LeadForm />} />
+            <Route path="/admin/leads/:id" element={<LeadDetail />} />
           </Route>
         </Routes>
       </div>

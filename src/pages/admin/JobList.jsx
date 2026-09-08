@@ -84,6 +84,7 @@ export default function JobList() {
                 <th className="px-4 py-3 font-semibold text-[var(--color-ink)]">City</th>
                 <th className="px-4 py-3 font-semibold text-[var(--color-ink)] tabular-nums">Slots</th>
                 <th className="px-4 py-3 font-semibold text-[var(--color-ink)]">Status</th>
+                <th className="px-4 py-3 font-semibold text-[var(--color-ink)]">Stage</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -95,6 +96,7 @@ export default function JobList() {
                   <td className="px-4 py-3 text-[var(--color-body)]">{j.city}, {j.country}</td>
                   <td className="px-4 py-3 tabular-nums text-[var(--color-body)]">{j.slots_open}/{j.slots_total}</td>
                   <td className="px-4 py-3"><Pill status={j.status} /></td>
+                  <td className="px-4 py-3 text-xs capitalize text-[var(--color-muted)]">{(j.stage || 'draft').replace('_', ' ')}</td>
                   <td className="px-4 py-3"><Link to={`/admin/jobs/${j.id}/edit`} className="font-semibold text-[var(--color-primary)]">Edit</Link></td>
                 </tr>
               ))}

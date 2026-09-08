@@ -52,8 +52,12 @@ export default function AdminGuard() {
         <NavLink to="/admin" end className={linkClass}>Candidates</NavLink>
         <NavLink to="/admin/pipeline" className={linkClass}>Pipeline</NavLink>
         <NavLink to="/admin/jobs" className={linkClass}>Jobs</NavLink>
+        <NavLink to="/admin/clients" className={linkClass}>Clients</NavLink>
+        <NavLink to="/admin/leads" className={linkClass}>Leads</NavLink>
         <NavLink to="/admin/partners" className={linkClass}>Partners/Agents</NavLink>
         <NavLink to="/admin/locations" className={linkClass}>Locations</NavLink>
+        <NavLink to="/admin/access-control" className={linkClass}>Access Control</NavLink>
+        <NavLink to="/admin/audit-log" className={linkClass}>Audit Log</NavLink>
         <div className="ml-4">
           <GlobalSearch />
         </div>

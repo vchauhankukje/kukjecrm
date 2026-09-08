@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { Container, Card, Textarea, Button, Pill, Field, Input, Select, Chip, ErrorText, Lookup, PathBar } from '../../components/ui'
 import { CATEGORIES } from '../../lib/constants'
+import { logAudit } from '../../lib/permissions'
 
 const PATH_STAGES = ['applied', 'shortlisted', 'interview', 'placed']
 const TABS = ['Details', 'Applications', 'Notes', 'Calls']
@@ -48,7 +49,7 @@ export default function CandidateDetail() {
 
     const { data: apps } = await supabase
       .from('application')
-      .select('*, job(title, city, country)')
+      .select('*, job(title, city, country, client_id)')
       .eq('candidate_id', id)
       .order('status_updated_at', { ascending: false })
     setApplications(apps || [])
@@ -73,6 +74,12 @@ export default function CandidateDetail() {
     } else {
       await supabase.from('application').insert({ candidate_id: id, job_id: null, status })
     }
+    await logAudit({ action: 'status_change', objectType: 'application', objectId: primaryApp?.id || id, before: { status: primaryApp?.status }, after: { status } })
+    load()
+  }
+
+  async function toggleClientVisible(appId, current) {
+    await supabase.from('application').update({ client_visible: !current }).eq('id', appId)
     load()
   }
 
@@ -103,6 +110,7 @@ export default function CandidateDetail() {
       setProfileError(dbError.message)
       return
     }
+    await logAudit({ action: 'update', objectType: 'candidate', objectId: id, after: { name: editName, city: editCity } })
     setProfileSaved(true)
     load()
   }
@@ -239,12 +247,26 @@ export default function CandidateDetail() {
           {applications.length === 0 && <p className="text-sm text-[var(--color-muted)]">No applications yet.</p>}
           <div className="space-y-3">
             {applications.map((a) => (
-              <div key={a.id} className="flex items-center justify-between border-b border-[var(--color-border)] pb-3 last:border-0 last:pb-0">
-                <div>
-                  <p className="text-sm font-semibold text-[var(--color-ink)]">{a.job?.title || 'General application'}</p>
-                  {a.job && <p className="text-xs text-[var(--color-muted)]">{a.job.city}, {a.job.country}</p>}
+              <div key={a.id} className="border-b border-[var(--color-border)] pb-3 last:border-0 last:pb-0">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--color-ink)]">{a.job?.title || 'General application'}</p>
+                    {a.job && <p className="text-xs text-[var(--color-muted)]">{a.job.city}, {a.job.country}</p>}
+                  </div>
+                  <Pill status={a.status} />
                 </div>
-                <Pill status={a.status} />
+                {a.job?.client_id && (
+                  <div className="mt-2 flex items-center justify-between">
+                    <label className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
+                      <input type="checkbox" checked={!!a.client_visible} onChange={() => toggleClientVisible(a.id, a.client_visible)} />
+                      Share with client
+                    </label>
+                    {(a.client_rating || a.client_feedback) && (
+                      <span className="text-xs text-[var(--color-muted)]">Client rating: {a.client_rating || '—'}</span>
+                    )}
+                  </div>
+                )}
+                {a.client_feedback && <p className="mt-1 text-xs italic text-[var(--color-body)]">"{a.client_feedback}"</p>}
               </div>
             ))}
           </div>
