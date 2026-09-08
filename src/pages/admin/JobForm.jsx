@@ -3,7 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { loadCountries, loadCities } from '../../lib/locations'
 import { CATEGORIES } from '../../lib/constants'
+import { logAudit } from '../../lib/permissions'
 import { Container, PageHeader, Card, Field, Input, Select, Button, ErrorText } from '../../components/ui'
+
+const STAGES = ['draft', 'submitted', 'kukje_review', 'approved', 'sourcing', 'interview', 'selected', 'rejected', 'hold', 'closed']
 
 export default function JobForm() {
   const { id } = useParams()
@@ -12,6 +15,7 @@ export default function JobForm() {
 
   const [countries, setCountries] = useState([])
   const [cities, setCities] = useState([])
+  const [clients, setClients] = useState([])
 
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState(CATEGORIES[0])
@@ -21,6 +25,8 @@ export default function JobForm() {
   const [slotsTotal, setSlotsTotal] = useState(1)
   const [slotsOpen, setSlotsOpen] = useState(1)
   const [status, setStatus] = useState('active')
+  const [stage, setStage] = useState('draft')
+  const [clientId, setClientId] = useState('')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -33,6 +39,8 @@ export default function JobForm() {
         const firstCity = cityList.find((c) => c.country_id === countryList[0].id)
         setCity(firstCity?.name || '')
       }
+      const { data: clientList } = await supabase.from('client').select('id, company_name').order('company_name')
+      setClients(clientList || [])
     }
     init()
   }, [])
@@ -49,6 +57,8 @@ export default function JobForm() {
       setSlotsTotal(data.slots_total ?? 1)
       setSlotsOpen(data.slots_open ?? 1)
       setStatus(data.status || 'active')
+      setStage(data.stage || 'draft')
+      setClientId(data.client_id || '')
     })
   }, [id])
 
@@ -63,14 +73,19 @@ export default function JobForm() {
   }
 
   async function handleSave() {
-    const payload = { title, category, city, country, pay_range: payRange, slots_total: Number(slotsTotal), slots_open: Number(slotsOpen), status }
-    const { error: dbError } = isEdit
-      ? await supabase.from('job').update(payload).eq('id', id)
-      : await supabase.from('job').insert(payload)
+    const payload = {
+      title, category, city, country, pay_range: payRange,
+      slots_total: Number(slotsTotal), slots_open: Number(slotsOpen),
+      status, stage, client_id: clientId || null,
+    }
+    const { data, error: dbError } = isEdit
+      ? await supabase.from('job').update(payload).eq('id', id).select().single()
+      : await supabase.from('job').insert(payload).select().single()
     if (dbError) {
       setError(dbError.message)
       return
     }
+    await logAudit({ action: isEdit ? 'update' : 'create', objectType: 'job', objectId: data.id, after: payload })
     navigate('/admin/jobs')
   }
 
@@ -113,11 +128,24 @@ export default function JobForm() {
           </Field>
         </div>
 
-        <Field label="Status">
+        <Field label="Status" hint="Controls whether candidates see this job">
           <Select value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="active">Active</option>
             <option value="paused">Paused</option>
             <option value="filled">Filled</option>
+          </Select>
+        </Field>
+
+        <Field label="Recruitment stage" hint="Internal lifecycle tracking, not shown to candidates">
+          <Select value={stage} onChange={(e) => setStage(e.target.value)}>
+            {STAGES.map((s) => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+          </Select>
+        </Field>
+
+        <Field label="Client" hint="Optional — leave blank for a direct/internal job">
+          <Select value={clientId} onChange={(e) => setClientId(e.target.value)}>
+            <option value="">No client</option>
+            {clients.map((c) => <option key={c.id} value={c.id}>{c.company_name}</option>)}
           </Select>
         </Field>
 
