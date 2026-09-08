@@ -95,9 +95,13 @@ create policy "recruiters_read_all_recruiters" on recruiter for select
   using (exists (select 1 from recruiter r where r.user_id = auth.uid()));
 create policy "recruiters_insert_recruiter" on recruiter for insert
   with check (exists (select 1 from recruiter r where r.user_id = auth.uid()));
+-- WITH CHECK deliberately restricts profile_id: someone claiming their own
+-- unclaimed invite (not yet a recruiter) cannot set profile_id themselves —
+-- only an existing recruiter (managing someone else's access) can. Prevents
+-- a self-claim payload from also self-assigning e.g. the Super Admin profile.
 create policy "recruiter_claim_or_manage" on recruiter for update
   using (user_id is null or user_id = auth.uid() or exists (select 1 from recruiter r where r.user_id = auth.uid()))
-  with check (true);
+  with check (profile_id is null or exists (select 1 from recruiter r where r.user_id = auth.uid()));
 -- Lets an unclaimed invite be found by token without already being a recruiter.
 create policy "public_read_unclaimed_invite" on recruiter for select
   using (user_id is null and invite_token is not null);
@@ -162,8 +166,10 @@ create table audit_log (
 );
 
 alter table audit_log enable row level security;
-create policy "recruiters_read_audit_log" on audit_log for select using (auth.uid() is not null);
-create policy "recruiters_insert_audit_log" on audit_log for insert with check (auth.uid() is not null);
+create policy "recruiters_read_audit_log" on audit_log for select
+  using (exists (select 1 from recruiter r where r.user_id = auth.uid()));
+create policy "recruiters_insert_audit_log" on audit_log for insert
+  with check (exists (select 1 from recruiter r where r.user_id = auth.uid()));
 
 -- ============================================================
 -- 3. BASIC EMPLOYER/CLIENT PORTAL
@@ -190,7 +196,9 @@ alter table application add column client_rating int;
 alter table application add column client_feedback text;
 
 alter table client enable row level security;
-create policy "recruiters_manage_client" on client for all using (auth.uid() is not null) with check (auth.uid() is not null);
+create policy "recruiters_manage_client" on client for all
+  using (exists (select 1 from recruiter r where r.user_id = auth.uid()))
+  with check (exists (select 1 from recruiter r where r.user_id = auth.uid()));
 create policy "client_claim_or_self_update" on client for update using (auth_user_id is null or auth_user_id = auth.uid()) with check (true);
 create policy "client_self_read" on client for select using (auth_user_id = auth.uid());
 
@@ -226,4 +234,6 @@ create table lead (
 );
 
 alter table lead enable row level security;
-create policy "recruiters_manage_lead" on lead for all using (auth.uid() is not null) with check (auth.uid() is not null);
+create policy "recruiters_manage_lead" on lead for all
+  using (exists (select 1 from recruiter r where r.user_id = auth.uid()))
+  with check (exists (select 1 from recruiter r where r.user_id = auth.uid()));
